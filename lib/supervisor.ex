@@ -8,7 +8,8 @@ defmodule Cruncher.Supervisor do
   @impl true
   def init(:ok) do
     children = [
-      Cruncher.SocketHandler
+      Cruncher.SocketHandler,
+      Cruncher.Counter
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

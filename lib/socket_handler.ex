@@ -1,15 +1,18 @@
 defmodule Cruncher.SocketHandler do
   use Riverside, otp_app: :cruncher
 
+  alias Cruncher.Counter
+
   @impl Riverside
-  def handle_message(msg, session, state) do
+  def handle_message(%{"client_id" => client_id, "event" => "increment"} = msg, session, state) do
+    IO.inspect("Increment")
+    IO.inspect(client_id)
 
-    IO.inspect("Received")
-    IO.inspect(msg)
+    Counter.increment()
 
-    # `msg` is a 'TEXT' or 'BINARY' frame sent by client,
-    # process it as you like
-    deliver_me(msg)
+    IO.inspect(Counter.get())
+
+    deliver_me(%{"count" => Counter.get()})
 
     {:ok, session, state}
   end
