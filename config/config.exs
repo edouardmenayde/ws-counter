@@ -5,7 +5,7 @@ config :cruncher, Cruncher.SocketHandler,
   path: "/",
   max_connections: 10000, # don't accept connections if server already has this number of connections
   max_connection_age: :infinity, # force to disconnect a connection if the duration passed. if :infinity is set, do nothing.
-  idle_timeout: 120_000, # disconnect if no event comes on a connection during this duration
+  idle_timeout: :infinity, # disconnect if no event comes on a connection during this duration
   reuse_port: false, # TCP SO_REUSEPORT flag
   show_debug_logs: true,
   transmission_limit: [

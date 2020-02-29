@@ -3,17 +3,33 @@ defmodule Cruncher.SocketHandler do
 
   alias Cruncher.Counter
 
-  @impl Riverside
-  def handle_message(%{"client_id" => client_id, "event" => "increment"} = msg, session, state) do
-    IO.inspect("Increment")
-    IO.inspect(client_id)
+  @main_channel "main"
 
+  @impl Riverside
+  def init(session, state) do
+    Riverside.LocalDelivery.join_channel(@main_channel)
+    {:ok, session, state}
+  end
+
+  @impl Riverside
+  def handle_message(%{"event" => "increment"}, session, state) do
     Counter.increment()
 
-    IO.inspect(Counter.get())
+    outgoing = %{"count" => Counter.get()}
 
-    deliver_me(%{"count" => Counter.get()})
+    deliver_channel(@main_channel, outgoing)
 
     {:ok, session, state}
+  end
+
+  @impl Riverside
+  def handle_info(_info, session, state) do
+    {:ok, session, state}
+  end
+
+  @impl Riverside
+  def terminate(_reason, _session, _state) do
+    leave_channel(@main_channel)
+    :ok
   end
 end
