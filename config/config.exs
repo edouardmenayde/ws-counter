@@ -1,7 +1,7 @@
 import Config
 
 config :cruncher, Cruncher.SocketHandler,
-  port: 3000,
+  port: 4000,
   path: "/",
   max_connections: 10000, # don't accept connections if server already has this number of connections
   max_connection_age: :infinity, # force to disconnect a connection if the duration passed. if :infinity is set, do nothing.
