@@ -15,17 +15,28 @@ defmodule Cruncher.SocketHandler do
   def handle_message(%{"event" => "increment"}, session, state) do
     Counter.increment()
 
-    outgoing = %{"count" => Counter.get()}
-
-    deliver_channel(@main_channel, outgoing)
-
-    {:ok, session, state}
+    deliver_current_count(session, state)
   end
 
   @impl Riverside
   def handle_message(%{"event" => "decrement"}, session, state) do
     Counter.decrement()
+    deliver_current_count(session, state)
+  end
 
+  @impl Riverside
+  def handle_message(%{"event" => "get"}, session, state) do
+    deliver_current_count(session, state)
+  end
+
+  @impl Riverside
+  def handle_message(%{"event" => "reset"}, session, state) do
+    Counter.reset()
+
+    deliver_current_count(session, state)
+  end
+
+  defp deliver_current_count(session, state) do
     outgoing = %{"count" => Counter.get()}
 
     deliver_channel(@main_channel, outgoing)

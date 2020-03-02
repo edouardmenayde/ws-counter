@@ -5,6 +5,10 @@ defmodule Cruncher.Counter do
     Agent.start_link(fn -> 0 end, name: __MODULE__)
   end
 
+  def reset() do
+    Agent.update(__MODULE__, fn _ -> 0 end)
+  end
+
   def increment() do
     Agent.update(__MODULE__, &(&1 + 1))
   end
