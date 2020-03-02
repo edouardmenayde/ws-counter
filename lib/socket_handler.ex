@@ -10,7 +10,12 @@ defmodule Cruncher.SocketHandler do
   @impl Riverside
   def init(session, state) do
     Riverside.LocalDelivery.join_channel(@main_channel)
-    {:ok, session, state}
+    deliver_current_connections(session, state)
+  end
+
+  @impl Riverside
+  def handle_message(%{"event" => "get_connections"}, session, state) do
+    deliver_current_connections(session, state)
   end
 
   @impl Riverside
@@ -68,6 +73,14 @@ defmodule Cruncher.SocketHandler do
     {:ok, session, state}
   end
 
+  defp deliver_current_connections(session, state) do
+    outgoing = %{"connections" => Riverside.MetricsInstrumenter.number_of_current_connections()}
+
+    deliver_channel(@main_channel, outgoing)
+
+    {:ok, session, state}
+  end
+
   @impl Riverside
   def handle_info(_info, session, state) do
     {:ok, session, state}
@@ -76,6 +89,10 @@ defmodule Cruncher.SocketHandler do
   @impl Riverside
   def terminate(_reason, _session, _state) do
     leave_channel(@main_channel)
+    outgoing = %{"connections" => Riverside.MetricsInstrumenter.number_of_current_connections() - 1}
+
+    deliver_channel(@main_channel, outgoing)
+
     :ok
   end
 end
