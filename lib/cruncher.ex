@@ -4,7 +4,8 @@ defmodule Cruncher do
   def start(_type, _args) do
     [
        {Riverside, [handler: Cruncher.SocketHandler]},
-       Cruncher.Counter
+       Cruncher.Counter,
+       Cruncher.Path
     ]
     |> Supervisor.start_link([
       strategy: :one_for_one,
