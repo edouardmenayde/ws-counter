@@ -13,9 +13,16 @@ defmodule Cruncher.SocketHandler do
     deliver_current_connections(session, state)
   end
 
-  @impl Riverside
-  def handle_message(%{"event" => "get_connections"}, session, state) do
-    deliver_current_connections(session, state)
+  def handle_message(%{"event" => "get_state"}, session, state) do
+    outgoing = %{
+      "count" => Counter.get(),
+      "connections" => Riverside.MetricsInstrumenter.number_of_current_connections(),
+      "path" => Path.get()
+    }
+
+    deliver_channel(@main_channel, outgoing)
+
+    {:ok, session, state}
   end
 
   @impl Riverside
@@ -33,25 +40,20 @@ defmodule Cruncher.SocketHandler do
   end
 
   @impl Riverside
-  def handle_message(%{"event" => "increment"}, session, state) do
+  def handle_message(%{"event" => "increment_count"}, session, state) do
     Counter.increment()
 
     deliver_current_count(session, state)
   end
 
   @impl Riverside
-  def handle_message(%{"event" => "decrement"}, session, state) do
+  def handle_message(%{"event" => "decrement_count"}, session, state) do
     Counter.decrement()
     deliver_current_count(session, state)
   end
 
   @impl Riverside
-  def handle_message(%{"event" => "get"}, session, state) do
-    deliver_current_count(session, state)
-  end
-
-  @impl Riverside
-  def handle_message(%{"event" => "reset"}, session, state) do
+  def handle_message(%{"event" => "reset_count"}, session, state) do
     Counter.reset()
 
     deliver_current_count(session, state)
